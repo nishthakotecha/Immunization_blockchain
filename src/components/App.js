@@ -22,6 +22,7 @@ class App extends Component {
       account: null,
       immunizationName: '',
       immunizationDate:'',
+      immunizationValidity:'',
       patientRecordNo:0,
       recordNumber:0,
       patientRecord:[],
@@ -120,6 +121,27 @@ class App extends Component {
               response.text().then((pRecord) => {
                 console.log("Patient Record from IPFS =",pRecord)
                 const pRecord_parts = pRecord.split(',');
+
+
+                var today = new Date();
+                var vaxType = pRecord_parts[3]
+                var vaxDate = new Date(pRecord_parts[pRecord_parts.length-1])
+                var valDate = new Date();
+
+                if (vaxType == 'PCR') {
+                  valDate.setDate(vaxDate.getDate() + 3)
+                }else{
+                  valDate.setFullYear(vaxDate.getFullYear() + 1)
+                }
+
+                if (today <= valDate){
+                  pRecord_parts.push("valid until "+valDate.toLocaleDateString());
+                  console.log('Immunization is valid until '+valDate)
+                }else{
+                  pRecord_parts.push('Expired on '+ valDate.toLocaleDateString());
+                  console.log('Immunization Expired on '+ valDate)
+                }
+
                 this.setState({ patientRecord : pRecord_parts })
               }); //response   
             });//fetch
@@ -239,7 +261,7 @@ class App extends Component {
     return (
       <div>
         <nav className="navbar navbar-dark fixed-top flex-md-nowrap p-0 shadow">
-          <h1>TravelFree. Let's get Movin'</h1>
+          <h1> Travel safely with TravelFree.</h1>
         </nav>
         <p>&nbsp;</p>
         <div className="container-fluid mt-5">
@@ -298,10 +320,10 @@ class App extends Component {
                     <h3> Patient Record </h3>
                     <p> Patient Record Number: {this.state.patientRecord[0]}  </p>
                     <p> Patient name : {this.state.patientRecord[1]}</p>
-                    <p> Medical Center : Immunization Type : Immunization Date </p>
-                    <p> {this.state.patientRecord[2]} : {this.state.patientRecord[3]} : {this.state.patientRecord[4]}</p>
-                    <p> {this.state.patientRecord[5]} : {this.state.patientRecord[6]} : {this.state.patientRecord[7]}</p>
-                    <p> {this.state.patientRecord[8]} : {this.state.patientRecord[9]} : {this.state.patientRecord[10]}</p>
+                    <p> Medical Center : Immunization Type : Immunization Date : Immunization Validity </p>
+                    <p> {this.state.patientRecord[2]} : {this.state.patientRecord[3]} : {this.state.patientRecord[4]} : {this.state.patientRecord[5]}</p>
+                    <p> {this.state.patientRecord[6]} : {this.state.patientRecord[7]} : {this.state.patientRecord[8]} : {this.state.patientRecord[9]}</p>
+                    <p> {this.state.patientRecord[10]} : {this.state.patientRecord[11]} : {this.state.patientRecord[12]} : {this.state.patientRecord[13]}</p>
                     <button onClick={() => this.handleClick()}>
                         Home
                     </button> 
